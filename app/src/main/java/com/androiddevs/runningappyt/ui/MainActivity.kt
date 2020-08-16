@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        EnableGPSIfPossible() // Enable Gps if possible to start tracking on real devices
         navigateToTrackingFragmentIfNeeded(intent)
 
         setSupportActionBar(toolbar)
@@ -34,7 +34,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
     }
+   private fun EnableGPSIfPossible() {
+        val manager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps()
+        }
+    }
 
+    private fun buildAlertMessageNoGps() {
+        val builder =  AlertDialog.Builder(this)
+        builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?")
+            .setCancelable(false)
+            .setPositiveButton("Yes",
+                DialogInterface.OnClickListener { dialog, id -> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
+            .setNegativeButton("No",
+                DialogInterface.OnClickListener { dialog, id -> dialog.cancel() })
+        val alert: AlertDialog = builder.create()
+        alert.show()
+    }
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         navigateToTrackingFragmentIfNeeded(intent)
